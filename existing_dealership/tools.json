@@ -1,0 +1,569 @@
+[
+    {
+      "type": "function",
+      "endpoint": "/dgaauto/techwall/getavailability/mcgrath-lexus-chicago",
+      "auth": {
+        "username": "dga_scheduler",
+        "password": "Green3Red4Blue"
+      },
+      "name": "get_availability",
+      "failure_sentence": "I'm sorry. There seems to be an issue with our system, can I help you with anything else?",
+      "store_response": true,
+      "give_response": true,
+      "use_data_response": {
+        "prompt": "Here are all of the available appointments that the user can choose from. Tell them the most recent one or the one that best fits their needs and ask if you can confirm their appointment. If there is some message with the response, use this. Always offer the first available appointment that is at least an hour out from the current time. These are the only appointments available. DO NOT offer them an appointment if it doesn't show up here! "
+      },
+      "request_method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "url": "https://02yh5kjrxf.execute-api.us-east-1.amazonaws.com/default/customer-custom-integration-api",
+      "function": {
+        "name": "get_availability",
+        "description": "Call this function when checking the availability of an appointment slot for the customer. This function will return all available appointments for the user to choose from, from the specified start and end date you give it. If you need more, call this function again with a longer range or different range.  These are the only appointments available. DO NOT offer them an appointment if it doesn't show up here!",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "startDate": {
+              "type": "string",
+              "description": "A datetime string that specifies the start date and time of the appointment range, in the format YYYY-MM-DD. Remember, the current year is 2025"
+            },
+            "endDate": {
+              "type": "string",
+              "description": "A datetime string that specifies the end date and time of the appointment range. In the format YYYY-MM-DD. Remember, the current year is 2025"
+            },
+            "transportationType": {
+              "type": "string",
+              "description": "The type of transportation the user is looking for. Only include one of the options",
+              "enum": [
+                "PICKUP",
+                "WAITER",
+                "DROPOFF"
+              ]
+            },
+            "vehicle": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "string",
+                    "description": "The year of the vehicle."
+                  },
+                  "make": {
+                    "type": "string",
+                    "description": "The make of the vehicle."
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "The model of the vehicle."
+                  }
+                },
+                "required": [
+                  "year",
+                  "make",
+                  "model"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "description": "The message you will say before transferring the call to the phone number."
+              },
+            "dealerId": {
+              "type": "string",
+              "description": "The ID of the dealership.",
+              "enum": [
+                "1"
+              ]
+            },
+            "opCodes": {
+              "type": "string",
+              "description": "Comma-delimited list of opCodes for the appointment as a string. OpCodes are the codes associated with the appointment type. For example, if the user is looking for an OIL AND FILTER CHANGE the opCode would be 01 HVP2. Reference your system prompts for the correct opCode mappings."
+            }
+          },
+          "required": [
+            "startDate",
+            "endDate",
+            "dealerId",
+            "message"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "auth": {
+        "username": "dga_scheduler",
+        "password": "Green3Red4Blue"
+      },
+      "name": "book_appointment",
+      "endpoint": "/dgaauto/techwall/bookappointment/mcgrath-lexus-chicago",
+      "failure_sentence": "I'm sorry. There seems to be an issue with our system and I couldn't book your appointment, can I help you with anything else?",
+      "store_response": true,
+      "give_response": true,
+      "use_data_response": {
+        "prompt": "You have just tried to book an appointment. If the appointment was successful, tell the user that the appointment was successful and ask if they need help with anything else. If the appointment was not successful, tell the user that the appointment was not successful and ask if they would like to try again. Offer a different time."
+      },
+      "request_method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "url": "https://02yh5kjrxf.execute-api.us-east-1.amazonaws.com/default/customer-custom-integration-api",
+      "function": {
+        "name": "book_appointment",
+        "description": "Call this function to book the appointment once the customer and you have confirmed a time. This function will return a success or failure message. You will see this in additional information. Only call it once per appointment.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "opCodes": {
+              "type": "string",
+              "description": "Comma-delimited list of opCodes for the appointment as a string. OpCodes are the codes associated with the appointment type. For example, if the user is looking for an OIL AND FILTER CHANGE the opCode would be 01 HVP2. Reference your system prompts for the correct opCode mappings."
+            },
+            "transportationType": {
+              "type": "string",
+              "description": "The type of transportation the user is looking for. Only include one of the options",
+              "enum": [
+                "PICKUP",
+                "WAITER",
+                "DROPOFF"
+              ]
+            },
+            "dateTime": {
+              "type": "string",
+              "description": "The date and time of the desired appointment in datetime string in the format YYYY-MM-DD HH:MM:SS. Remember, the current year is 2025"
+            },
+            "dealerId": {
+              "type": "string",
+              "description": "The ID of the dealership.",
+              "enum": [
+                "1"
+              ]
+            },
+            "firstName": {
+              "type": "string",
+              "description": "The first name of the caller."
+            },
+            "lastName": {
+              "type": "string",
+              "description": "The last name of the caller."
+            },
+          "email": {
+          "type": "string",
+          "description": "The customers email address"
+          },
+            "comment": {
+              "type": "string",
+              "description": "Always precede the comment with 'CUSTOMER STATES:', and then a comment with the customer's service request and transportation request. This should be the speech to text raw response from the customer, or a summary as close to the original request as possible. Make an explanation of exactly what the customer needs ie. their breaks are squeeking. Also include the transportation type they would like."
+            },
+            "message": {
+                "type": "string",
+                "description": "The message you will say before transferring the call to the phone number."
+              },
+            "phoneNumber": {
+              "type": "string",
+              "description": "The phone number of the caller, most likely found in the additional information. DO NOT include the country code. for example, +14154650216 should be 4154650216"
+            },
+            "vehicle": {
+              "type": "object",
+              "properties": {
+                "year": {
+                  "type": "string",
+                  "description": "The year of the vehicle."
+                },
+                "make": {
+                  "type": "string",
+                  "description": "The make of the vehicle."
+                },
+                "model": {
+                  "type": "string",
+                  "description": "The model of the vehicle."
+                }
+              },
+              "required": [
+                "year",
+                "make",
+                "model"
+              ]
+            }
+          },
+          "required": [
+            "dealerId",
+            "dateTime",
+            "comment",
+            "phoneNumber",
+            "message"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "auth": {
+        "username": "dga_scheduler",
+        "password": "Green3Red4Blue"
+      },
+      "name": "update_appointment",
+      "endpoint": "/dgaauto/techwall/bookappointment/mcgrath-lexus-chicago",
+      "failure_sentence": "I'm sorry. There seems to be an issue with our system and I couldn't book your appointment, can I help you with anything else?",
+      "store_response": true,
+      "give_response": true,
+      "use_data_response": {
+        "prompt": "You have just tried to update an appointment. If the appointment update was successful, tell the user that the appointment was successful and ask if they need help with anything else. If the appointment update was not successful, tell the user that the appointment update was not successful and ask if they would like to try again. Offer a different time."
+      },
+      "request_method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "url": "https://02yh5kjrxf.execute-api.us-east-1.amazonaws.com/default/customer-custom-integration-api",
+      "function": {
+        "name": "update_appointment",
+        "description": "Call this function to update an appointment once the customer and you have confirmed a time. This function will return a success or failure message. You will see this in additional information. Only call it once per appointment.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "opCodes": {
+              "type": "string",
+              "description": "Comma-delimited list of opCodes for the appointment as a string. OpCodes are the codes associated with the appointment type. For example, if the user is looking for an OIL AND FILTER CHANGE the opCode would be 01 HVP2. Reference your system prompts for the correct opCode mappings."
+            },
+            "transportationType": {
+              "type": "string",
+              "description": "The type of transportation the user is looking for. Only include one of the options",
+              "enum": [
+                "PICKUP",
+                "WAITER",
+                "DROPOFF"
+              ]
+            },
+            "dateTime": {
+              "type": "string",
+              "description": "The date and time of the desired appointment in datetime string in the format YYYY-MM-DD HH:MM:SS. Remember, the current year is 2025"
+            },
+            "appointmentId": {
+              "type": "string",
+              "description": "If you have booked an appointment on the call, you will see it in the function response for the book_appointment function call as the appmtId. This is the "
+            },
+            "dealerId": {
+              "type": "string",
+              "description": "The ID of the dealership.",
+              "enum": [
+                "1"
+              ]
+            },
+            "firstName": {
+              "type": "string",
+              "description": "The first name of the caller."
+            },
+            "lastName": {
+              "type": "string",
+              "description": "The last name of the caller."
+            },
+          "email": {
+          "type": "string",
+          "description": "The customers email address"
+          },
+            "comment": {
+              "type": "string",
+              "description": "Always precede the comment with 'CUSTOMER STATES:', and then a comment with the customer's service request and transportation request. This should be the speech to text raw response from the customer, or a summary as close to the original request as possible. Make an explanation of exactly what the customer needs ie. their breaks are squeeking. Also include the transportation type they would like."
+            },
+            "message": {
+                "type": "string",
+                "description": "The message you will say before transferring the call to the phone number."
+              },
+            "phoneNumber": {
+              "type": "string",
+              "description": "The phone number of the caller, most likely found in the additional information. DO NOT include the country code. for example, +14154650216 should be 4154650216"
+            },
+            "vehicle": {
+              "type": "object",
+              "properties": {
+                "year": {
+                  "type": "string",
+                  "description": "The year of the vehicle."
+                },
+                "make": {
+                  "type": "string",
+                  "description": "The make of the vehicle."
+                },
+                "model": {
+                  "type": "string",
+                  "description": "The model of the vehicle."
+                }
+              },
+              "required": [
+                "year",
+                "make",
+                "model"
+              ]
+            }
+          },
+          "required": [
+            "dealerId",
+            "dateTime",
+            "comment",
+            "phoneNumber",
+            "message"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "auth": {
+        "username": "dga_scheduler",
+        "password": "Green3Red4Blue"
+      },
+      "name": "cancel_appointment",
+      "failure_sentence": "I'm sorry. There seems to be an issue with our system and I couldn't cancel your appointment, can you confirm the details of your cancellation please?",
+      "store_response": true,
+      "give_response": true,
+      "use_data_response": {
+        "prompt": "You have just tried to cancel an appointment. If the cancellation was successful, tell the user that the appointment was successful and ask if they need help with anything else. If the appointment cancellation was not successful, tell the user that the appointment cancellation was not successful and ask if they would like to try again. Offer a different time."
+      },
+      "request_method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "url": "https://mcgrath-lexus-chicago.techwall.us/gs-appointment-api/cancel",
+      "function": {
+        "name": "cancel_appointment",
+        "description": "Call this function if the user asks you to cancel an appointment of theirs. This function will return a success or failure message. You will see this in additional information. Only call it once per appointment.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "dealerId": {
+              "type": "string",
+              "description": "The ID of the dealership.",
+              "enum": [
+                "1"
+              ]
+            },
+            "message": {
+                "type": "string",
+                "description": "The message you will say before transferring the call to the phone number."
+              },
+            "appointmentId": {
+              "type": "string",
+              "description": "The appointmentId they wish to cancel. This is found in the additional information array under appointment: {id: ...}. If it's not there, don't include this."
+            }
+          },
+          "required": [
+            "dealerId",
+            "appointmentId",
+            "message"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "auth": {
+        "username": "dga_scheduler",
+        "password": "Green3Red4Blue"
+      },
+      "name": "lookup_customer",
+      "failure_sentence": "It looks like we have no accounts under that phone number. Would you like to create an account instead?",
+      "store_response": true,
+      "give_response": true,
+      "use_data_response": {
+        "prompt": "You have just tried to lookup a user. If the lookup was successful, tell the user about the data. If you were unable to find a user, tell them and ask for a different phone number or offer to create an account for them."
+      },
+      "request_method": "GET",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "url": "https://mcgrath-lexus-chicago.techwall.us/gs-appointment-api/lookupCustomer?dealerId=1",
+      "function": {
+        "name": "lookup_customer",
+        "description": "Call this function when the user gives you a phone number to try and you need to look them up for some reason. This function will return a success or failure message. You will see this in additional information.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "phoneNumber": {
+              "type": "string",
+              "description": "The phone number of the customer."
+            },
+            "message": {
+              "type": "string",
+              "description": "The message you will say before transferring the call to the phone number."
+            }
+          },
+          "required": [
+            "phoneNumber",
+            "message"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "auth": {
+        "username": "dga_scheduler",
+        "password": "Green3Red4Blue"
+      },
+      "name": "create_customer",
+      "failure_sentence": "I'm sorry. There seems to be an issue with our system and I couldn't create your account.",
+      "store_response": true,
+      "give_response": true,
+      "use_data_response": {
+        "prompt": "You have just tried to create an account. If the account creation was successful, tell the user that it was successful and ask if they need help with anything else. If the account creation was not successful, tell the user that it was not successful and ask if they would like to try again."
+      },
+      "request_method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "url": "https://mcgrath-lexus-chicago.techwall.us/gs-appointment-api/createCustomer",
+      "function": {
+        "name": "create_customer",
+        "description": "Call this function after getting first name, last name, phone number, and email from the user to create an account if there is no existing information pointing to an account. This function will return a success or failure message. You will see this in additional information. Only call it once per customer if they don't have existing information.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "dealerId": {
+              "type": "string",
+              "description": "The ID of the dealership.",
+              "enum": [
+                "1"
+              ]
+            },
+            "firstName": {
+              "type": "string",
+              "description": "The first name of the customer."
+            },
+            "message": {
+                "type": "string",
+                "description": "The message you will say before transferring the call to the phone number."
+              },
+            "lastName": {
+              "type": "string",
+              "description": "The last name of the customer."
+            },
+            "phoneNumber": {
+              "type": "string",
+              "description": "The phone number of the customer."
+            },
+            "email": {
+              "type": "string",
+              "description": "The email of the customer."
+            }
+          },
+          "required": [
+            "dealerId",
+            "firstName",
+            "lastName",
+            "message"
+          ]
+        }
+      }
+    },
+  {
+      "type": "function",
+      "name": "reschedule_appointment",
+      "endpoint": "/dgaauto/techwall/reschedule/mcgrath-lexus-chicago",
+      "auth": {
+        "username": "dga_scheduler",
+        "password": "Green3Red4Blue"
+      },
+      "failure_sentence": "I'm sorry. There seems to be an issue with our system and I couldn't create your account.",
+      "store_response": true,
+      "give_response": true,
+      "use_data_response": {
+        "prompt": "You have just tried to reschedule an appointment. If it failed or succeeded, tell the user. You can tell from the response." 
+      },
+      "request_method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "url": "https://02yh5kjrxf.execute-api.us-east-1.amazonaws.com/default/customer-custom-integration-api",
+      "function": {
+        "name": "reschedule_appointment",
+        "description": "Call this function to reschedule an appointment. Only call it after confirming the details with the customer. Y",
+        "parameters": {
+          "type": "object",
+              "properties": {
+                "opCodes": {
+                  "type": "string",
+                  "description": "Comma-delimited list of opCodes for the appointment as a string. Include ALL of the opcodes from the original appointment that they wish to reschedule, unless they updated the service request."
+                },
+                "dealerId": {
+                  "type": "string",
+                  "description": "The ID of the dealership.",
+                  "enum": [
+                    "1"
+                  ]
+                },
+                "transportationType": {
+                  "type": "string",
+                  "description": "The type of transportation the user is looking for. Only include one of the options",
+              "enum": [
+                "PICKUP",
+                "WAITER",
+                "DROPOFF"
+              ]
+                },
+                "dateTime": {
+                  "type": "string",
+                  "description": "The date and time of the new desired rescheduled appointment in datetime string."
+                },
+                "firstName": {
+                  "type": "string",
+                  "description": "The first name of the caller."
+                },
+                "message": {
+                  "type": "string",
+                  "description": "The message you will say before transferring the call to the phone number."
+                },
+
+                "lastName": {
+                  "type": "string",
+                  "description": "The last name of the caller."
+                },
+                "comment": {
+                  "type": "string",
+                  "description": "The same comment/summary that exists on the appointment they wish to reschedule."
+                },
+                "phoneNumber": {
+                  "type": "string",
+                  "description": "The phone number of the caller, most likely found in the additional information. DO NOT include the country code. For example, +14154650216 should be 4154650216."
+                },
+                "appointmentId": {
+                  "type": "string",
+                  "description": "The ID of the appointment to be rescheduled."
+                },
+                "vehicle": {
+                  "type": "object",
+                  "properties": {
+                    "year": {
+                      "type": "string",
+                      "description": "The year of the vehicle."
+                    },
+                    "make": {
+                      "type": "string",
+                      "description": "The make of the vehicle."
+                    },
+                    "model": {
+                      "type": "string",
+                      "description": "The model of the vehicle."
+                    }
+                  },
+                  "required": [
+                    "year",
+                    "make",
+                    "model"
+                  ]
+                }
+              },
+              "required": [
+                "opCodes",
+                "dealerId",
+                "transportationType",
+                "dateTime",
+                "firstName",
+                "lastName",
+                "comment",
+                "phoneNumber",
+                "appointmentId",
+                "vehicle",
+                "message"
+              ]
+        }
+      }
+    }
+  ]
